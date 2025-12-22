@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:money_traker/core/utils/appColor/app_color.dart';
 import 'package:money_traker/modules/screen/home/home_controller.dart';
 import 'package:money_traker/modules/widgets/money_item.dart';
+
+import '../bottom_sheet/bottom_view.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -16,11 +19,11 @@ class HomeView extends GetView<HomeController> {
           children: [
             Container(
               height:controller.part1Height + (controller.part2Height / 1.2),
-              decoration: const BoxDecoration(
+              decoration:  BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFFDDF4FB),
-                    Color(0xFFFFE6FF),
+                    AppColors.primaryColor,
+                    AppColors.onPrimaryColor
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -43,6 +46,8 @@ class HomeView extends GetView<HomeController> {
           ],
         ),
       ),
+      floatingActionButton: BottomSheetView(),
+
     );
   }
   Container _partTwo() {
@@ -54,7 +59,7 @@ class HomeView extends GetView<HomeController> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(.08),
+                        color: AppColors.blackColor.withOpacity(0.08),
                         blurRadius: 12,
                         offset: const Offset(0, 6),
                       )
@@ -130,4 +135,5 @@ class HomeView extends GetView<HomeController> {
                 );
   }
 }
+
 
