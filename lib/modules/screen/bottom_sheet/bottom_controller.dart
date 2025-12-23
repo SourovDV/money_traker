@@ -64,7 +64,7 @@ class BottomController extends GetxController{
     }
 
     Get.back();
-    Get.snackbar("Success", "Transaction saved");
+    Get.snackbar("Added", "ডাটা সফলভাবে অ্যাড হয়েছে");
   }
 
 

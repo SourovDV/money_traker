@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:money_traker/data/models/data_models.dart';
 import 'package:money_traker/modules/helper/db_helper/db_helper.dart';
@@ -14,12 +15,53 @@ class HomeController extends GetxController {
   RxInt totalIncome = 0.obs;
   RxInt totalExpense = 0.obs;
   RxInt balance = 0.obs;
+  RxList<TransactionModel> filteredTransaction = <TransactionModel>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     loadTransaction();
   }
+
+  void applyFilter() {
+    if (calenderView.value == Calender.all) {
+      filteredTransaction.assignAll(transaction);
+    } else if (calenderView.value == Calender.income) {
+      filteredTransaction.assignAll(
+        transaction.where((e) => e.category == "income").toList(),
+      );
+    } else if (calenderView.value == Calender.expense) {
+      filteredTransaction.assignAll(
+        transaction.where((e) => e.category == "expense").toList(),
+      );
+    }
+  }
+  void confirmDelete(int id) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text("Confirm Delete"),
+        content: const Text("আপনি কি নিশ্চিতভাবে এই ডাটা ডিলিট করতে চান?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back(); // dialog close
+            },
+            child: const Text("No"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              await deleteTransaction(id);
+              Get.back(); // dialog close
+              Get.snackbar("Deleted", "ডাটা সফলভাবে ডিলিট হয়েছে");
+            },
+            child: const Text("Yes"),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   void calculateTotal() {
     int income = 0;
@@ -43,6 +85,7 @@ class HomeController extends GetxController {
       final data = await DbHelper.getAllTransaction();
       transaction.assignAll(data);
       calculateTotal();
+      applyFilter();
     } catch (e) {
       print("DB Error: $e");
     } finally {

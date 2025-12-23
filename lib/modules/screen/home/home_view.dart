@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:money_traker/core/utils/appColor/app_color.dart';
 import 'package:money_traker/modules/screen/home/home_controller.dart';
 import 'package:money_traker/modules/widgets/money_item.dart';
@@ -32,13 +33,33 @@ class HomeView extends GetView<HomeController> {
                       if (controller.getLoading.value) {
                         return Center(child: CircularProgressIndicator());
                       }
-                      if (controller.transaction.isEmpty) {
-                        return Text("No Data Found");
+                      if (controller.filteredTransaction.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Lottie.asset(
+                                "assets/lottie/empty.json",
+                                height: 100,
+                                width: 100,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                controller.calenderView.value == Calender.income
+                                    ? "কোনো আয় পাওয়া যায়নি"
+                                    : controller.calenderView.value == Calender.expense
+                                    ? "কোনো ব্যয় পাওয়া যায়নি"
+                                    : "কোনো ডাটা পাওয়া যায়নি",
+                              ),
+                            ],
+                          ),
+                        );
                       }
+
                       return ListView.builder(
-                        itemCount: controller.transaction.length,
+                        itemCount: controller.filteredTransaction.length,
                         itemBuilder: (context, index) {
-                          final item = controller.transaction[index];
+                          final item = controller.filteredTransaction[index];
                           final bool isIncome = item.category == "income";
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +106,7 @@ class HomeView extends GetView<HomeController> {
                                           PopupMenuButton<String>(
                                             onSelected: (value) {
                                               if (value == "delete" && item.id != null) {
-                                                controller.deleteTransaction(item.id!);
+                                                controller.confirmDelete(item.id!);
                                               }
                                               if(value =="edit"){
                                                 controller.editPage(item);
@@ -144,6 +165,7 @@ class HomeView extends GetView<HomeController> {
           selected: {controller.calenderView.value},
           onSelectionChanged: (value) {
             controller.calenderView.value = value.first;
+            controller.applyFilter();
           },
           showSelectedIcon: false,
           style: SegmentedButton.styleFrom(
