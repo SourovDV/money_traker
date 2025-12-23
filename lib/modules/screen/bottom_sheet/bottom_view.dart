@@ -1,54 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:money_traker/modules/screen/bottom_sheet/bottom_controller.dart';
 
-class BottomSheetView extends StatelessWidget {
-  const BottomSheetView({
-    super.key,
-  });
+class BottomSheetView extends GetView<BottomController> {
+  const BottomSheetView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        Get.bottomSheet(
-          Container(
-            height: 300,
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "নতুন এন্ট্রি যোগ করুন",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: "Amount",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+
+          title: Padding(
+            padding: const EdgeInsets.fromLTRB(60, 0, 0, 0),
+            child: Text("যোগ করুন",style: TextStyle(fontSize: 20),),
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+
+              SizedBox(height: 10.h,),
+              Obx((){
+                return SizedBox(
+                  width: double.infinity,
+                  child: SegmentedButton<Track>(segments: [
+                    ButtonSegment(value:Track.income , label: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text("Income"),
+                    )),
+                    ButtonSegment(value: Track.expense,label: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text("Expense"),
+                    ))
+                  ], selected:{controller.trackView.value},
+                    showSelectedIcon: false,
+                    style: SegmentedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12))
+                      )
+                    ),
+                  onSelectionChanged: (value){
+                    controller.trackView.value = value.first;
+
+                  },
+                  ),
+                );
+              }),
+              Form(child: Column(
+                children: [
+                  SizedBox(height: 20.h,),
+                  TextFormField(
+                    decoration:InputDecoration(
+                      prefixIcon: Icon(Icons.monetization_on_outlined),
+                      labelText: "টাকার পরিমান ",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)
+                      )
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  child: const Text("Close"),
-                ),
-              ],
-            ),
+                  SizedBox(height: 15.h,),
+                  TextFormField(
+                    decoration:InputDecoration(
+                        prefixIcon: Icon(Icons.description_outlined),
+                        labelText: "বিবরন",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)
+                        )
+                    ),
+                  ),
+                  SizedBox(height: 15.h,),
+                  Container(
+                    height: 53,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(8)
+                    ),
+                    child: Center(child: Text("অ্যাড",style: TextStyle(fontSize: 18,color: Colors.black),),),
+                  )
+                ],
+              ))
+            ],
           ),
-          isScrollControlled: true, // Keyboard আসলে expand হবে
-          backgroundColor: Colors.transparent,
-        );
-      },
-      child: const Icon(Icons.add),
+        ),
+      ),
     );
   }
 }
