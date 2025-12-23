@@ -21,45 +21,99 @@ class HomeView extends GetView<HomeController> {
               child: Column(
                 children: [
                   _partOne(),
-                  _partTwo(),
-                  SizedBox(height: 10),
+                  Obx(() {
+                    return _partTwo();
+                  }),
+                  SizedBox(height: 10.h),
                   _buildObx(),
+                  SizedBox(height: 15.h,),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: 2,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(children: [Text("আয়"), Text("13-5-24")]),
-                                Row(
-                                  children: [
-                                    Text("1000"),
-                                    PopupMenuButton<String>(
-                                      onSelected: (value) {},
-                                      itemBuilder: (_) =>
-                                      [
-                                        const PopupMenuItem(
-                                          value: 'edit',
-                                          child: Text('Edit'),
-                                        ),
-                                        const PopupMenuItem(
-                                          value: 'delete',
-                                          child: Text('Delete'),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                    child: Obx(() {
+                      if (controller.getLoading.value) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (controller.transaction.isEmpty) {
+                        return Text("No Data Found");
+                      }
+                      return ListView.builder(
+                        itemCount: controller.transaction.length,
+                        itemBuilder: (context, index) {
+                          final item = controller.transaction[index];
+                          final bool isIncome = item.category == "income";
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(child: Divider(
+                                      color: Colors.grey, thickness: 1)),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    child: Text(item.date),
+                                  ),
+                                  Expanded(child: Divider(
+                                      color: Colors.grey, thickness: 1)),
+                                ],
+                              ),
+
+                              Card(
+                                color: isIncome
+                                    ? AppColors.incomeColor
+                                    : AppColors.expenseColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment
+                                            .start,
+                                        children: [
+                                          Text(
+                                            item.category,
+                                          ),
+                                          Text(item.note),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "${item.money}",
+                                          ),
+                                          PopupMenuButton<String>(
+                                            onSelected: (value) {
+                                              if (value == "delete" && item.id != null) {
+                                                controller.deleteTransaction(item.id!);
+                                              }
+                                              if(value =="edit"){
+                                                controller.editPage(item);
+                                              }
+                                            },
+                                            itemBuilder: (_) =>
+                                            [
+                                              const PopupMenuItem(
+                                                value: 'edit',
+                                                child: Text('Edit'),
+                                              ),
+                                              const PopupMenuItem(
+                                                value: 'delete',
+                                                child: Text('Delete'),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }),
                   ),
                 ],
               ),
@@ -67,7 +121,12 @@ class HomeView extends GetView<HomeController> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: (){controller.addItems();},child: Icon(Icons.add),),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          controller.addItems();
+        },
+        child: Icon(Icons.add),
+      ),
     );
   }
 
@@ -137,12 +196,12 @@ class HomeView extends GetView<HomeController> {
             children: [
               MoneyItem(
                 title: "মোট আয়",
-                amount: "৳ ২৫,০০০",
+                amount: "৳ ${controller.totalIncome}",
                 color: Colors.green,
               ),
               MoneyItem(
                 title: "মোট ব্যয়",
-                amount: "৳ ১৫,০০০",
+                amount: "৳ ${controller.totalExpense}",
                 color: Colors.red,
               ),
             ],
@@ -153,7 +212,7 @@ class HomeView extends GetView<HomeController> {
             child: Divider(),
           ),
           Text(
-            "৳ ১০,০০০",
+            "৳ ${controller.balance}",
             style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
           ),
         ],

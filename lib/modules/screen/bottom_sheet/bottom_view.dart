@@ -21,7 +21,6 @@ class BottomSheetView extends GetView<BottomController> {
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
-
               SizedBox(height: 10.h,),
               Obx((){
                 return SizedBox(
@@ -36,7 +35,7 @@ class BottomSheetView extends GetView<BottomController> {
                       child: Text("Expense"),
                     ))
                   ], selected:{controller.trackView.value},
-                    showSelectedIcon: false,
+                    // showSelectedIcon: false,
                     style: SegmentedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12))
@@ -44,22 +43,28 @@ class BottomSheetView extends GetView<BottomController> {
                     ),
                   onSelectionChanged: (value){
                     controller.trackView.value = value.first;
-
                   },
                   ),
                 );
               }),
-              Form(child: Column(
+              Form(
+                  key: controller.addKey,
+                  child: Column(
                 children: [
                   SizedBox(height: 20.h,),
                   TextFormField(
+                    keyboardType:TextInputType.number,
                     decoration:InputDecoration(
                       prefixIcon: Icon(Icons.monetization_on_outlined),
                       labelText: "টাকার পরিমান ",
+
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8)
-                      )
+                      ),
                     ),
+                    controller: controller.moneyController,
+                    validator: controller.moneyValidation,
+                    autovalidateMode:AutovalidateMode.onUserInteraction,
                   ),
                   SizedBox(height: 15.h,),
                   TextFormField(
@@ -70,15 +75,22 @@ class BottomSheetView extends GetView<BottomController> {
                             borderRadius: BorderRadius.circular(8)
                         )
                     ),
+                    maxLength: 30,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    controller: controller.explainController,
+                    validator: controller.moneyValidation,
                   ),
                   SizedBox(height: 15.h,),
-                  Container(
-                    height: 53,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(8)
+                  InkWell(
+                    onTap: controller.submitData,
+                    child: Container(
+                      height: 53,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(8)
+                      ),
+                      child: Center(child: Text("অ্যাড",style: TextStyle(fontSize: 18,color: Colors.black),),),
                     ),
-                    child: Center(child: Text("অ্যাড",style: TextStyle(fontSize: 18,color: Colors.black),),),
                   )
                 ],
               ))
