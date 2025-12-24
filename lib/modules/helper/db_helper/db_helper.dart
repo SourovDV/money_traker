@@ -44,7 +44,7 @@ CREATE TABLE $tableTransaction (
   //data read
   static Future<List<TransactionModel>> getAllTransaction() async {
     final db = await database;
-    final result = await db.query(tableTransaction, orderBy: "date DESC");
+    final result = await db.query(tableTransaction, orderBy: "id DESC");
     return result.map((e) => TransactionModel.fromMap(e)).toList();
   }
 

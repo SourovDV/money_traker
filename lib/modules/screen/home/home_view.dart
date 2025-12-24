@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -11,6 +12,7 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: const Color(0xffF4F7FB),
       body: SafeArea(
@@ -30,6 +32,9 @@ class HomeView extends GetView<HomeController> {
                   SizedBox(height: 15.h,),
                   Expanded(
                     child: Obx(() {
+                      if (controller.calenderView.value == Calender.report) {
+                        return SingleChildScrollView(child: _buildReportView());
+                      }
                       if (controller.getLoading.value) {
                         return Center(child: CircularProgressIndicator());
                       }
@@ -71,7 +76,7 @@ class HomeView extends GetView<HomeController> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8.0),
-                                    child: Text(item.date),
+                                    child: Text(controller.formatDate(item.date)),
                                   ),
                                   Expanded(child: Divider(
                                       color: Colors.grey, thickness: 1)),
@@ -101,7 +106,7 @@ class HomeView extends GetView<HomeController> {
                                       Row(
                                         children: [
                                           Text(
-                                            "${item.money}",
+                                            "৳ ${item.money}",
                                           ),
                                           PopupMenuButton<String>(
                                             onSelected: (value) {
@@ -142,11 +147,131 @@ class HomeView extends GetView<HomeController> {
           ],
         ),
       ),
+      endDrawer: _buildDrawer(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           controller.addItems();
         },
         child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildReportView() {
+    final data = controller.getLast7Days();
+    final summary = controller.calculateSummary(data);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Last 7 Days Report",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 16),
+
+          Text("মোট আয়: ৳ ${summary["income"]}"),
+          Text("মোট ব্যয়: ৳ ${summary["expense"]}"),
+          Text("ব্যালেন্স: ৳ ${summary["balance"]}"),
+
+          SizedBox(height: 60),
+         _buildBarChart(summary),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBarChart(Map<String, int> summary) {
+    final maxY = controller.getMaxValue(summary);
+
+    return SizedBox(
+      height: 260,
+      child: BarChart(
+        BarChartData(
+          maxY: maxY,
+          alignment: BarChartAlignment.spaceAround,
+
+          barGroups: [
+            BarChartGroupData(
+              x: 0,
+              barRods: [
+                BarChartRodData(
+                  toY: summary["income"]!.toDouble(),
+                  color: Colors.green,
+                  width: 20,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 1,
+              barRods: [
+                BarChartRodData(
+                  toY: summary["expense"]!.toDouble(),
+                  color: Colors.red,
+                  width: 20,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 2,
+              barRods: [
+                BarChartRodData(
+                  toY: summary["balance"]!.abs().toDouble(),
+                  color: Colors.blue,
+                  width: 20,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ],
+            ),
+          ],
+
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  switch (value.toInt()) {
+                    case 0:
+                      return const Text("Income");
+                    case 1:
+                      return const Text("Expense");
+                    case 2:
+                      return const Text("Balance");
+                  }
+                  return const SizedBox();
+                },
+              ),
+            ),
+
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40, // 🔥 overlap fix
+                interval: maxY / 4, // 🔥 only 4 labels
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    controller.formatYAxis(value),
+                    style: const TextStyle(fontSize: 10),
+                  );
+                },
+              ),
+            ),
+
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+
+          gridData: FlGridData(show: true),
+          borderData: FlBorderData(show: false),
+        ),
       ),
     );
   }
@@ -233,10 +358,14 @@ class HomeView extends GetView<HomeController> {
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Divider(),
           ),
-          Text(
-            "৳ ${controller.balance}",
-            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
-          ),
+          Column(
+            children: [
+              Text("ব্যালেন্স"),
+              Text("৳ ${controller.balance}",
+                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold,color: controller.getMoneyColor(controller.balance.value)),
+              ),
+            ],
+          )
         ],
       ),
     );
@@ -250,6 +379,9 @@ class HomeView extends GetView<HomeController> {
         children: [
           Row(
             children: [
+              // Drawer open button
+
+              SizedBox(width: 8.w),
               Icon(Icons.monetization_on, color: Colors.green),
               SizedBox(width: 8.w),
               Text(
@@ -258,15 +390,83 @@ class HomeView extends GetView<HomeController> {
               ),
             ],
           ),
-          Row(
-            children: [
-              Icon(Icons.notifications_none),
-              SizedBox(width: 8.w),
-              Icon(Icons.settings),
-            ],
+          Builder(
+            builder: (context) => IconButton(
+              icon: Icon(Icons.menu, color: Colors.blueGrey),
+              onPressed: () {
+                Scaffold.of(context).openEndDrawer();
+              },
+            ),
           ),
         ],
       ),
     );
   }
+
+}
+
+Drawer _buildDrawer() {
+  return Drawer(
+    child: ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        DrawerHeader(
+          decoration: BoxDecoration(
+            color: AppColors.primaryColor,
+          ),
+          child: Text(
+            'টাকার হিসাব',
+            style: TextStyle(color: Colors.white, fontSize: 24),
+          ),
+        ),
+        ListTile(
+          leading: Icon(Icons.picture_as_pdf),
+          title: Text('Income Expense pdf'),
+          onTap: () {
+            // Notifications page action
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.star),
+          title: Text('Rating Us'),
+          onTap: () {
+            // Settings page action
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.share),
+          title: Text('Share App'),
+          onTap: () {
+            // Logout action
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.privacy_tip_outlined),
+          title: Text('Privacy Policy'),
+          onTap: () {
+            // Logout action
+          },
+        ),
+        Divider(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: Text("App Version",style: TextStyle(fontSize: 18),),
+        ),
+        ListTile(
+          leading: Icon(Icons.developer_board_sharp),
+          title: Text('App Developer'),
+          onTap: () {
+            // Logout action
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.diversity_1_outlined),
+          title: Text('Version'),
+          onTap: () {
+            // Logout action
+          },
+        ),
+      ],
+    ),
+  );
 }

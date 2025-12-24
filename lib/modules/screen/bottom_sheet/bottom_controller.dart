@@ -43,12 +43,12 @@ class BottomController extends GetxController{
       money: int.parse(moneyController.text),
       category: trackView.value == Track.income ? "income" : "expense",
       note: explainController.text,
-      date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
+      date: DateTime.now().toIso8601String(),
     );
 
-    print("edit all  $editModel");
+
     if (editModel != null) {
-      print("id number ${editModel!.id}");
+      debugPrint("id number ${editModel!.id}");
     }
 
     if (editModel == null) {
