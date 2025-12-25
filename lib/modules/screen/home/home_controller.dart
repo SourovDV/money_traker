@@ -4,6 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:money_traker/data/models/data_models.dart';
 import 'package:money_traker/modules/helper/db_helper/db_helper.dart';
 import 'package:money_traker/routes/app_pages.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
 
 enum Calender { all, income, expense, report }
 enum ReportRange { sevenDays, thirtyDays }
@@ -27,6 +31,71 @@ class HomeController extends GetxController {
     super.onInit();
     loadTransaction();
   }
+
+  //for pdf
+  Future<void> generatePDF() async {
+    final pdf = pw.Document();
+
+    // টেবিলের হেডার
+    final headers = ['Date', 'Category', 'Note', 'Amount'];
+
+    // ট্রানজেকশন ডাটাকে টেবিল রো-তে রূপান্তর
+    final data = transaction.map((item) {
+      return [
+        formatDate(item.date),
+        item.category.capitalizeFirst,
+        item.note,
+        "TK ${item.money}"
+      ];
+    }).toList();
+
+    pdf.addPage(
+      pw.MultiPage(
+        build: (context) => [
+          pw.Header(
+            level: 0,
+            child: pw.Text("Income Expense Report",
+                style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+          ),
+          pw.SizedBox(height: 10),
+
+          // সামারি সেকশন
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text("Total Income: TK ${totalIncome.value}"),
+              pw.Text("Total Expense: TK ${totalExpense.value}"),
+              pw.Text("Balance: TK ${balance.value}"),
+            ],
+          ),
+          pw.SizedBox(height: 20),
+
+          // ডাটা টেবিল
+          pw.TableHelper.fromTextArray(
+            headers: headers,
+            data: data,
+            border: pw.TableBorder.all(),
+            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            cellAlignment: pw.Alignment.centerLeft,
+          ),
+        ],
+      ),
+    );
+
+    // PDF প্রিভিউ এবং ডাউনলোড অপশন দেখাবে
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+      name: 'income_expense_report.pdf',
+    );
+  }
+  //Share app
+  void shareApp() {
+    // এখানে আপনার অ্যাপের প্লে-স্টোর লিঙ্ক বা মেসেজ দিতে পারেন
+    const String message = 'আমার এই "টাকার হিসাব" অ্যাপটি ব্যবহার করে দেখুন! এটি খুব সহজেই ইনকাম এবং খরচের হিসাব রাখে। ডাউনলোড লিঙ্ক: https://play.google.com/store/apps/details?id=com.example.money_traker';
+
+    Share.share(message);
+  }
+
 
   //get date for graph
   List<TransactionModel> getLast7Days() {
@@ -200,3 +269,5 @@ class HomeController extends GetxController {
     }
   }
 }
+
+

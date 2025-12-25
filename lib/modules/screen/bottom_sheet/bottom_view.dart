@@ -28,18 +28,23 @@ class BottomSheetView extends GetView<BottomController> {
                   child: SegmentedButton<Track>(segments: [
                     ButtonSegment(value:Track.income , label: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Text("Income"),
+                      child: Text("আয় যোগ করুন"),
                     )),
                     ButtonSegment(value: Track.expense,label: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Text("Expense"),
+                      child: Text("ব্যায় যোগ করুন"),
                     ))
                   ], selected:{controller.trackView.value},
-                    // showSelectedIcon: false,
+                    showSelectedIcon: false,
+
                     style: SegmentedButton.styleFrom(
+                      selectedBackgroundColor: controller.trackView.value == Track.income
+                          ? Colors.green
+                          : Colors.redAccent,
+                      selectedForegroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12))
-                      )
+                      ),
                     ),
                   onSelectionChanged: (value){
                     controller.trackView.value = value.first;
@@ -81,17 +86,21 @@ class BottomSheetView extends GetView<BottomController> {
                     validator: controller.moneyValidation,
                   ),
                   SizedBox(height: 15.h,),
-                  InkWell(
-                    onTap: controller.submitData,
-                    child: Container(
-                      height: 53,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(8)
-                      ),
-                      child: Center(child: Text("অ্যাড",style: TextStyle(fontSize: 18,color: Colors.black),),),
-                    ),
-                  )
+                 Obx((){
+                   return  InkWell(
+                     onTap: controller.submitData,
+                     child: Container(
+                       height: 53,
+                       decoration: BoxDecoration(
+                           color: controller.trackView.value == Track.income
+                               ? Colors.green
+                               : Colors.redAccent,
+                           borderRadius: BorderRadius.circular(8)
+                       ),
+                       child: Center(child: Text( controller.trackView.value == Track.income?"আয় যোগ":"ব্যায় যোগ",style: TextStyle(fontSize: 18,),),),
+                     ),
+                   );
+                 })
                 ],
               ))
             ],

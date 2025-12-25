@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:money_traker/data/models/data_models.dart';
@@ -63,11 +64,16 @@ class BottomController extends GetxController{
       }
     }
 
+
     Get.back();
     Get.snackbar("Added", "ডাটা সফলভাবে অ্যাড হয়েছে");
   }
 
-
+Color? checkColor(value){
+    if(value == "income"){
+      return Colors.greenAccent;
+    }
+}
   @override
   void dispose() {
     super.dispose();

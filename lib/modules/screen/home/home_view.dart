@@ -402,71 +402,118 @@ class HomeView extends GetView<HomeController> {
       ),
     );
   }
+  Drawer _buildDrawer() {
 
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: AppColors.primaryColor,
+            ),
+            child: Text(
+              'টাকার হিসাব',
+              style: TextStyle(color: Colors.white, fontSize: 24),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.picture_as_pdf),
+            title: const Text('Income Expense pdf'),
+            onTap: () {
+              Get.back(); // ড্রয়ার বন্ধ করার জন্য
+              controller.generatePDF(); // PDF জেনারেট করার ফাংশন
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.star),
+            title: Text('Rating Us'),
+            onTap: () {
+              // Settings page action
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.share),
+            title: const Text('Share App'),
+            onTap: () {
+              Get.back(); // ড্রয়ার বন্ধ করার জন্য
+              controller.shareApp(); // এই ফাংশনটি কল করুন
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: const Text('Privacy Policy'),
+            onTap: () {
+              Get.back(); // ড্রয়ার বন্ধ হবে
+              Get.defaultDialog(
+                title: "Privacy Policy",
+                content: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "১. আপনার সমস্ত ডাটা আপনার ফোনেই সেভ থাকে।\n"
+                        "২. আমরা কোনো ব্যক্তিগত তথ্য সংগ্রহ করি না।\n"
+                        "৩. পিডিএফ তৈরির জন্য স্টোরেজ পারমিশন প্রয়োজন হতে পারে।\n"
+                        "৪. অ্যাপ ডিলিট করলে ডাটাও মুছে যাবে।",
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                confirm: ElevatedButton(
+                  onPressed: () => Get.back(),
+                  child: const Text("ওকে"),
+                ),
+              );
+            },
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: Text("App Version",style: TextStyle(fontSize: 18),),
+          ),
+          ListTile(
+            leading: Icon(Icons.developer_board_sharp),
+            title: Text('App Developer'),
+            onTap: () {
+              Get.back(); // ড্রয়ার বন্ধ হবে
+              Get.defaultDialog(
+                title: "Developer Info",
+                content: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(15), // এখানে মান বাড়ালে বেশি গোল হবে
+                        child: Image.asset(
+                          "assets/logo/developer.png",
+                          height: 120, // আপনার পছন্দমতো হাইট দিন
+                          width: 120,  // আপনার পছন্দমতো উইডথ দিন
+                          fit: BoxFit.cover, // ইমেজটি যেন বক্সের সাথে সুন্দরভাবে ফিট হয়
+                        ),
+                      ),
+                     const  Text(
+                            "সৌরভ চন্দ্র\n"
+                            "ইমেল: sourovchandra65@gmail.com\n"
+                            "মোবাইল: 01329895008\n",
+                        textAlign: TextAlign.start,
+                      ),
+                    ],
+                  ),
+                ),
+                confirm: ElevatedButton(
+                  onPressed: () => Get.back(),
+                  child: const Text("ওকে"),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('App Version'),
+            subtitle: const Text('1.0.0'), // আপনার প্রথম ভার্সন
+            onTap: null, // এটাতে ক্লিক করার দরকার নেই
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-Drawer _buildDrawer() {
-  return Drawer(
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        DrawerHeader(
-          decoration: BoxDecoration(
-            color: AppColors.primaryColor,
-          ),
-          child: Text(
-            'টাকার হিসাব',
-            style: TextStyle(color: Colors.white, fontSize: 24),
-          ),
-        ),
-        ListTile(
-          leading: Icon(Icons.picture_as_pdf),
-          title: Text('Income Expense pdf'),
-          onTap: () {
-            // Notifications page action
-          },
-        ),
-        ListTile(
-          leading: Icon(Icons.star),
-          title: Text('Rating Us'),
-          onTap: () {
-            // Settings page action
-          },
-        ),
-        ListTile(
-          leading: Icon(Icons.share),
-          title: Text('Share App'),
-          onTap: () {
-            // Logout action
-          },
-        ),
-        ListTile(
-          leading: Icon(Icons.privacy_tip_outlined),
-          title: Text('Privacy Policy'),
-          onTap: () {
-            // Logout action
-          },
-        ),
-        Divider(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18),
-          child: Text("App Version",style: TextStyle(fontSize: 18),),
-        ),
-        ListTile(
-          leading: Icon(Icons.developer_board_sharp),
-          title: Text('App Developer'),
-          onTap: () {
-            // Logout action
-          },
-        ),
-        ListTile(
-          leading: Icon(Icons.diversity_1_outlined),
-          title: Text('Version'),
-          onTap: () {
-            // Logout action
-          },
-        ),
-      ],
-    ),
-  );
-}
