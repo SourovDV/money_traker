@@ -161,7 +161,6 @@ class HomeController extends GetxController {
       );
     }
   }
-
   void confirmDelete(int id) {
     if (Get.isSnackbarOpen) return;
     Get.dialog(
@@ -188,12 +187,10 @@ class HomeController extends GetxController {
       ),
     );
   }
-
   String formatDate(String isoDate) {
     final dateTime = DateTime.parse(isoDate);
     return DateFormat("dd MMM yyyy").format(dateTime);
   }
-
   Map<String, int> calculateSummary(List<TransactionModel> list) {
     int income = 0;
     int expense = 0;
@@ -208,7 +205,6 @@ class HomeController extends GetxController {
 
     return {"income": income, "expense": expense, "balance": income - expense};
   }
-
   void calculateTotal() {
     int income = 0;
     int expense = 0;
@@ -224,7 +220,6 @@ class HomeController extends GetxController {
     totalExpense.value = expense;
     balance.value = income - expense;
   }
-
   Future<void> loadTransaction() async {
     try {
       getLoading.value = true;
@@ -238,7 +233,6 @@ class HomeController extends GetxController {
       getLoading.value = false;
     }
   }
-
   Future<void> insertTransaction(TransactionModel model) async {
     await DbHelper.insertTransaction(model);
     loadTransaction();
