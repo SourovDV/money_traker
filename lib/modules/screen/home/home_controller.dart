@@ -24,14 +24,11 @@ class HomeController extends GetxController {
   RxInt balance = 0.obs;
   RxList<TransactionModel> filteredTransaction = <TransactionModel>[].obs;
   Rx<ReportRange> reportRange = ReportRange.sevenDays.obs;
-
-
   @override
   void onInit() {
     super.onInit();
     loadTransaction();
   }
-
   //for pdf
   Future<void> generatePDF() async {
     final pdf = pw.Document();
@@ -51,11 +48,13 @@ class HomeController extends GetxController {
 
     pdf.addPage(
       pw.MultiPage(
-        build: (context) => [
+        build: (context) =>
+        [
           pw.Header(
             level: 0,
             child: pw.Text("Income Expense Report",
-                style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                style: pw.TextStyle(
+                    fontSize: 24, fontWeight: pw.FontWeight.bold)),
           ),
           pw.SizedBox(height: 10),
 
@@ -88,6 +87,7 @@ class HomeController extends GetxController {
       name: 'income_expense_report.pdf',
     );
   }
+
   //Share app
   void shareApp() {
     // এখানে আপনার অ্যাপের প্লে-স্টোর লিঙ্ক বা মেসেজ দিতে পারেন
@@ -95,8 +95,6 @@ class HomeController extends GetxController {
 
     Share.share(message);
   }
-
-
   //get date for graph
   List<TransactionModel> getLast7Days() {
     final now = DateTime.now();
@@ -105,7 +103,6 @@ class HomeController extends GetxController {
       return itemDate.isAfter(now.subtract(const Duration(days: 7)));
     }).toList();
   }
-
   List<TransactionModel> getLast30Days() {
     final now = DateTime.now();
     return transaction.where((item) {
@@ -113,7 +110,6 @@ class HomeController extends GetxController {
       return itemDate.isAfter(now.subtract(const Duration(days: 30)));
     }).toList();
   }
-
   // 🔹 GRAPH maxY calculation
   double getMaxValue(Map<String, int> summary) {
     final max = [
@@ -124,7 +120,6 @@ class HomeController extends GetxController {
 
     return max == 0 ? 100 : max * 1.2;
   }
-
   // 🔹 Y Axis number format
   String formatYAxis(double value) {
     if (value >= 1000000000) {
@@ -137,8 +132,6 @@ class HomeController extends GetxController {
       return value.toInt().toString();
     }
   }
-
-
   List<TransactionModel> getReportData() {
     if (reportRange.value == ReportRange.sevenDays) {
       return getLast7Days();
@@ -146,8 +139,6 @@ class HomeController extends GetxController {
       return getLast30Days();
     }
   }
-
-
   void applyFilter() {
     if (calenderView.value == Calender.all) {
       filteredTransaction.assignAll(transaction);
@@ -187,10 +178,12 @@ class HomeController extends GetxController {
       ),
     );
   }
+
   String formatDate(String isoDate) {
     final dateTime = DateTime.parse(isoDate);
     return DateFormat("dd MMM yyyy").format(dateTime);
   }
+
   Map<String, int> calculateSummary(List<TransactionModel> list) {
     int income = 0;
     int expense = 0;
@@ -205,6 +198,7 @@ class HomeController extends GetxController {
 
     return {"income": income, "expense": expense, "balance": income - expense};
   }
+
   void calculateTotal() {
     int income = 0;
     int expense = 0;
@@ -220,6 +214,7 @@ class HomeController extends GetxController {
     totalExpense.value = expense;
     balance.value = income - expense;
   }
+
   Future<void> loadTransaction() async {
     try {
       getLoading.value = true;
@@ -233,6 +228,7 @@ class HomeController extends GetxController {
       getLoading.value = false;
     }
   }
+
   Future<void> insertTransaction(TransactionModel model) async {
     await DbHelper.insertTransaction(model);
     loadTransaction();
@@ -255,6 +251,7 @@ class HomeController extends GetxController {
   void addItems() {
     Get.toNamed(AppPages.bottomSheetView);
   }
+
   Color getMoneyColor(int money) {
     if (money < 0) {
       return Colors.red;
